@@ -1,0 +1,11 @@
+embed-server --server-config=standalone-ha.xml --std-out=echo
+batch
+
+/subsystem=keycloak-server/spi=userSessions:add(default-provider=infinispan)
+/subsystem=keycloak-server/spi=userSessions/provider=infinispan:add(properties={preloadOfflineSessionsFromDatabase => "false"}, enabled=true)
+
+/subsystem=infinispan/cache-container=keycloak/distributed-cache=offlineSessions/memory=heap/:write-attribute(name=size, value=2)
+/subsystem=infinispan/cache-container=keycloak/distributed-cache=offlineClientSessions/memory=heap/:write-attribute(name=size, value=1)
+
+run-batch
+stop-embedded-server
